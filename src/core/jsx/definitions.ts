@@ -12,7 +12,7 @@ export type ComponentChild =
 	| ComponentChild[]
 	| Pointer<ComponentChild>;
 
-export type ComponentContext<T> = {
+export type ComponentContext<T = any> = {
 	state: Stateful<T>;
 
 	root: HTMLElement;
