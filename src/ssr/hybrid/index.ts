@@ -28,7 +28,7 @@ import { SSR, SSR_ID } from "../common/consts";
 
 export let mountOne = (
 	root: HTMLElement,
-	component: Component<any, any, any>
+	component: Component<any, any>
 ): void => {
 	let lookup = (ty: string, id: string) =>
 		root.querySelector(`${ty}[${SSR_ID}='${id}'`);
@@ -75,7 +75,7 @@ export let mountOne = (
 
 export let mount = (
 	roots: string | HTMLElement[],
-	component: Component<any, any, any>
+	component: Component<any, any>
 ) => {
 	(typeof roots == "string"
 		? [...document.querySelectorAll<HTMLElement>(roots)]

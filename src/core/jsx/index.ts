@@ -110,10 +110,10 @@ interface CssInfo {
 	_vars: [string, (props: any) => any][];
 }
 
-let componentCssInfo: Map<Component, CssInfo> = MAP();
+let componentCssInfo: Map<Component<any, any>, CssInfo> = MAP();
 let cxs = [];
 
-function _jsx<T extends Component<any, any, any>>(
+function _jsx<T extends Component<any, any>>(
 	init: T,
 	props: Record<string, any> | null,
 	key?: string
@@ -124,7 +124,7 @@ function _jsx<T extends string>(
 	key?: string
 ): DLElementNameToElement<T>;
 function _jsx(
-	init: Component<any, any, any> | string,
+	init: Component<any, any> | string,
 	_props: Record<string, any> | null,
 	key?: string
 ): HTMLElement {
@@ -142,6 +142,7 @@ function _jsx(
 
 	if (typeof init === "function") {
 		let state = createState({});
+		let propsState = createState({});
 
 		ssrTransform?.(init);
 
@@ -149,9 +150,9 @@ function _jsx(
 			let val = props[attr];
 
 			if (isBasePtr(val)) {
-				stateProxy(state, attr, val);
+				stateProxy(propsState, attr, val);
 			} else {
-				state[attr] = val;
+				propsState[attr] = val;
 			}
 		}
 
@@ -205,7 +206,7 @@ function _jsx(
 
 		let oldIdent = currentCssIdent;
 		currentCssIdent = cssInfo?._id;
-		el = init.call(state, cx);
+		el = init.call(state, propsState, cx);
 		currentCssIdent = oldIdent;
 		cx.root = el;
 
@@ -330,7 +331,7 @@ function _jsx(
 	return el;
 }
 
-function _h<T extends Component<any, any, any>>(
+function _h<T extends Component<any, any>>(
 	init: T,
 	props: Record<string, any> | null,
 	...children: ComponentChild[]
@@ -341,7 +342,7 @@ function _h<T extends string>(
 	...children: ComponentChild[]
 ): DLElementNameToElement<T>;
 function _h(
-	init: Component<any, any, any> | string,
+	init: Component<any, any> | string,
 	props: Record<string, any> | null,
 	...children: ComponentChild[]
 ): HTMLElement {

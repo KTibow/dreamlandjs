@@ -6,6 +6,7 @@ import {
 	Fragment,
 	ComponentState,
 	DREAMLAND,
+	ComponentContext,
 } from "dreamland/core";
 
 export type RouteParams = Record<string, string> & {
@@ -183,14 +184,14 @@ let _route = (
 	return null;
 };
 
-export let Route: Component<{
+export function Route(props: {
 	path?: string;
 	show?: ShowTarget;
 	children?: ComponentChild;
-}> = function (cx) {
+}, cx: ComponentContext) {
 	return {
-		_path: this.path,
-		_show: this.show,
+		_path: props.path,
+		_show: props.show,
 		_children: cx.children as any as RouteInternal[],
 	} satisfies RouteInternal as any;
 };

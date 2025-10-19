@@ -11,7 +11,7 @@ export let new_Comment = (text?: string) => new Comment(text);
 export let genCssUid = () => CSS_IDENT + genuid();
 export let hydrating: (el: HTMLElement) => boolean | undefined = () => false;
 export let ssrTransform:
-	| ((init: Component<any, any, any>, cx?: ComponentContext<any>) => void)
+	| ((init: Component<any, any>, cx?: ComponentContext<any>) => void)
 	| undefined;
 
 export type DomImpl = [
@@ -22,7 +22,7 @@ export type DomImpl = [
 	() => string,
 	((el: HTMLElement) => boolean) | undefined,
 	(
-		| ((init: Component<any, any, any>, cx?: ComponentContext<any>) => void)
+		| ((init: Component<any, any>, cx?: ComponentContext<any>) => void)
 		| undefined
 	),
 ];

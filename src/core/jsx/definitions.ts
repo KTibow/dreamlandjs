@@ -30,25 +30,25 @@ export type ComponentContext<T> = {
 type MappedProps<Props> = {
 	[Key in keyof Props]: Props[Key] | Pointer<Props[Key]>;
 };
-export type Component<Props = {}, Private = {}, Public = {}> = {
-	(
-		this: Stateful<StateObj<Props, Private, Public>>,
-		cx: ComponentContext<Props & Private & Public>
-	): HTMLElement;
+
+export type Component<Private, Props> = {
 	style?: CssInit;
+	(this: Stateful<Private>, props: Stateful<Props>, cx: ComponentContext<Props>): HTMLElement;
 };
-type StateObj<Props, Private, Public> = Omit<
-	Props & Private & Public,
+
+type StateObj<Props, Private> = Omit<
+	Props & Private,
 	"children"
 >;
-type ComponentStateObj<T extends Component<any, any, any>> =
-	T extends Component<infer Props, infer Private, infer Public>
-		? StateObj<Props, Private, Public>
+
+type ComponentStateObj<T extends Component<any, any>> =
+	T extends Component<infer Props, infer Private>
+		? StateObj<Props, Private>
 		: never;
-export type ComponentState<T extends Component<any, any, any>> = Stateful<
+export type ComponentState<T extends Component<any, any>> = Stateful<
 	ComponentStateObj<T>
 >;
-export type ComponentInstance<T extends Component<any, any, any>> = DLElement<
+export type ComponentInstance<T extends Component<any, any>> = DLElement<
 	ComponentStateObj<T>
 >;
 export type DLElement<T> = HTMLElement & { $: ComponentContext<T> };
@@ -79,8 +79,8 @@ export namespace JSX {
 		[element: string]: IntrinsicProps<GlobalElement>;
 	};
 
-	export type ElementType = keyof IntrinsicElements | Component<any, any, any>;
+	export type ElementType = keyof IntrinsicElements | Component<any, any>;
 	export type Element = HTMLElement;
 	export type LibraryManagedAttributes<C, _> =
-		C extends Component<infer Props, any, any> ? MappedProps<Props> : never;
+		C extends Component<any, infer Props> ? MappedProps<Props> : never;
 }
