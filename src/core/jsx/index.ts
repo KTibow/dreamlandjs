@@ -357,4 +357,4 @@ export let addDREAMLAND = () => {
 	jsx[NO_CHANGE] = () => cxs.splice(0, cxs.length);
 };
 
-export let Fragment = (cx: any) => cx.children;
+export let Fragment = (_: any, cx: any) => cx.children;
