@@ -17,7 +17,7 @@ import {
 	DLElementNameToElement,
 } from "./definitions";
 import { maybeListen } from "../state/pointers";
-import { createState, stateProxy } from "../state/state";
+import { createState, stateProxy, Stateful } from "../state/state";
 import { DREAMLAND, MAP, NO_CHANGE } from "../consts";
 import { DelegateListener } from "../delegate";
 import { findLIS, isArray, isBasePtr, isNode } from "../utils";
@@ -141,8 +141,8 @@ function _jsx(
 	let el: HTMLElement;
 
 	if (typeof init === "function") {
-		let state = createState({});
-		let propsState = createState({});
+		let state = createState({}) as Stateful<any>;
+		let propsState = createState({}) as Stateful<any>;
 
 		ssrTransform?.(init);
 
