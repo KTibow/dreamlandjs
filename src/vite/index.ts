@@ -7,10 +7,7 @@ import renderToString, { DomSerializerOptions } from "dom-serializer";
 import * as ts from "typescript";
 import type { RenderedComponent } from "dreamland/ssr/server";
 
-import {
-	DREAMLAND_CSS_EVENT,
-	type DreamlandCssUpdate,
-} from "./hmrPayload";
+import { DREAMLAND_CSS_EVENT, type DreamlandCssUpdate } from "./hmrPayload";
 
 type CssPluginContext = {
 	command: "build" | "serve";
@@ -31,7 +28,6 @@ let sharedCssPluginContext = createCssPluginContext();
 export let jsxPlugin = (
 	context: CssPluginContext = sharedCssPluginContext
 ): Plugin => {
-
 	return {
 		name: "dreamland/vite/jsx",
 		enforce: "pre",
@@ -115,9 +111,7 @@ export let cssHmrPlugin = (
 		} catch (error) {
 			let logger = ctx.server.config.logger;
 			let message =
-				error instanceof Error
-					? error.stack || error.message
-					: String(error);
+				error instanceof Error ? error.stack || error.message : String(error);
 			logger.error(
 				`[dreamland:vite] CSS HMR failed for ${ctx.file}\n${message}`
 			);
@@ -155,7 +149,6 @@ type AnalyzeResult = {
 
 let PROCESSABLE_EXTS = new Set([".ts", ".tsx", ".js", ".jsx"]);
 
-
 let analyzeCssModule = (
 	code: string,
 	options: AnalyzeCssOptions
@@ -183,7 +176,10 @@ let analyzeCssModule = (
 	let eligible = true;
 
 	let visit = (node: ts.Node) => {
-		if (ts.isTaggedTemplateExpression(node) && isCssTag(node.tag, cssIdentifiers)) {
+		if (
+			ts.isTaggedTemplateExpression(node) &&
+			isCssTag(node.tag, cssIdentifiers)
+		) {
 			if (!ts.isNoSubstitutionTemplateLiteral(node.template)) {
 				eligible = false;
 				return;
@@ -403,29 +399,38 @@ export let renderSsr = async (
 	return html.replace(`<!--ssr-head-->`, head).replace(`<!--ssr-body-->`, body);
 };
 
-export type DevSsrPluginOptions = {
+export type SsrPluginOptions = {
 	entry: string;
 	transform?: (html: string) => string;
 };
-let _devSsr = (options: DevSsrPluginOptions): PluginOption => ({
-	name: "dreamland/vite/dev-ssr",
-	apply: "serve",
+let _ssr = (options: SsrPluginOptions): PluginOption => ({
+	name: "dreamland/vite/ssr",
 	async transformIndexHtml(input, ctx) {
-		let server = ctx.server!;
 		try {
-			let entry = await server.ssrLoadModule(options.entry);
+			let entry;
+			if (ctx.server) {
+				entry = await ctx.server.ssrLoadModule(options.entry);
+			} else {
+				let resolvedPath = path.resolve(
+					process.cwd(),
+					options.entry.startsWith("/") ? options.entry.slice(1) : options.entry
+				);
+				entry = await import(`file://${resolvedPath}`);
+			}
 			let html = await renderSsr(
 				input,
-				() => entry.default(ctx.originalUrl!),
+				() => entry.default(ctx.originalUrl || "/"),
 				options.transform
 			);
 
 			return html;
 		} catch (e) {
-			server.ssrFixStacktrace(e);
+			if (ctx.server) {
+				ctx.server.ssrFixStacktrace(e);
+			}
 			throw e;
 		}
 	},
 });
 // vite types are broken
-export let devSsr: (options: DevSsrPluginOptions) => any = _devSsr;
+export let ssr: (options: SsrPluginOptions) => any = _ssr;
